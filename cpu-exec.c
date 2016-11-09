@@ -722,7 +722,7 @@ int cpu_exec(CPUState *cpu)
     } /* for(;;) */
     
     /* code write by sc */
-#if defined test    
+//#if defined test    
     if(node_cnt>0){
         
      //  if(change==1){
@@ -744,7 +744,7 @@ int cpu_exec(CPUState *cpu)
     }//write the tb into txt;
     
     /* end */ 
-#endif    
+//#endif    
 
 
     cc->cpu_exec_exit(cpu);

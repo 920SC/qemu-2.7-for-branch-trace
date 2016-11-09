@@ -1763,8 +1763,8 @@ static inline void check_cp0_enabled(DisasContext *ctx)
 
 static inline void check_cp1_enabled(DisasContext *ctx)
 {
-  // if (0)//unlikely(!(ctx->hflags & MIPS_HFLAG_FPU)))
-    //    generate_exception_err(ctx, EXCP_CpU, 1);
+   if(unlikely(!(ctx->hflags & MIPS_HFLAG_FPU)))
+    generate_exception_err(ctx, EXCP_CpU, 1);
 }
 
 /* Verify that the processor is running with COP1X instructions enabled.
@@ -1773,8 +1773,8 @@ static inline void check_cp1_enabled(DisasContext *ctx)
 
 static inline void check_cop1x(DisasContext *ctx)
 {
-//    if (unlikely(!(ctx->hflags & MIPS_HFLAG_COP1X)))
- //       generate_exception_end(ctx, EXCP_RI);
+   if (unlikely(!(ctx->hflags & MIPS_HFLAG_COP1X)))
+        generate_exception_end(ctx, EXCP_RI);
 }
 
 /* Verify that the processor is running with 64-bit floating-point
@@ -1833,9 +1833,9 @@ static inline void check_dspr2(DisasContext *ctx)
    CPU does not support the instruction set corresponding to flags. */
 static inline void check_insn(DisasContext *ctx, int flags)
 {
-//    if (0){//unlikely(!(ctx->insn_flags & flags))) {
-  //      generate_exception_end(ctx, EXCP_RI);
-   // }
+    if(unlikely(!(ctx->insn_flags & flags))) {
+      generate_exception_end(ctx, EXCP_RI);
+    }
 }
 
 /* This code generates a "reserved instruction" exception if the
@@ -1844,7 +1844,7 @@ static inline void check_insn(DisasContext *ctx, int flags)
 static inline void check_insn_opc_removed(DisasContext *ctx, int flags)
 {
     if (unlikely(ctx->insn_flags & flags)) {
-        printf("r6 here\n");
+    
         generate_exception_end(ctx, EXCP_RI);
     }
 }
@@ -1865,8 +1865,9 @@ static inline void check_ps(DisasContext *ctx)
 static inline void check_mips_64(DisasContext *ctx)
 {
     if (unlikely(!(ctx->hflags & MIPS_HFLAG_64)))
-    { generate_exception_end(ctx, EXCP_RI);
-        printf("mips64\n");}
+     generate_exception_end(ctx, EXCP_RI);
+        
+    
 }
 #endif
 
@@ -2420,7 +2421,6 @@ static void gen_flt_ldst (DisasContext *ctx, uint32_t opc, int ft,
         break;
     default:
         MIPS_INVAL("flt_ldst");
-        printf("hhhhh\n");//test;
         generate_exception_end(ctx, EXCP_RI);
         goto out;
     }
@@ -2433,12 +2433,12 @@ static void gen_cop1_ldst(DisasContext *ctx, uint32_t op, int rt,
 {    
        
       
-    if (1){  //ctx->CP0_Config1 & (1 << CP0C1_FP)) {//test;
-       // check_cp1_enabled(ctx);
+    if (ctx->CP0_Config1 & (1 << CP0C1_FP)){
+        check_cp1_enabled(ctx);
         switch (op) {
         case OPC_LDC1:
         case OPC_SDC1:
-       //     check_insn(ctx, ISA_MIPS2);
+           check_insn(ctx, ISA_MIPS2);
             /* Fallthrough */
         default:
             gen_flt_ldst(ctx, op, rt, rs, imm);
@@ -8666,7 +8666,6 @@ static void gen_cp1 (DisasContext *ctx, uint32_t opc, int rt, int fs)
         break;
     default:
         MIPS_INVAL("cp1 move");
-        printf("here\n");//test
         generate_exception_end(ctx, EXCP_RI);
         goto out;
     }
@@ -19219,8 +19218,6 @@ static void decode_opc(CPUMIPSState *env, DisasContext *ctx)
     int rs, rt, rd, sa;
     uint32_t op, op1;
     int16_t imm;
- //   if(ctx->pc==0x12000bde4||ctx->pc==0x12000bde8||ctx->pc==0x12000bdec)
-   //    printf("tb->pc=%llx   pc=%llx\n",ctx->tb->pc,ctx->pc);//test code;
 
     /* make sure instructions are on a word boundary */
     if (ctx->pc & 0x3) {
