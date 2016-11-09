@@ -2432,8 +2432,9 @@ static void gen_cop1_ldst(DisasContext *ctx, uint32_t op, int rt,
                           int rs, int16_t imm)
 {    
        
-      
+        
     if (ctx->CP0_Config1 & (1 << CP0C1_FP)){
+        
         check_cp1_enabled(ctx);
         switch (op) {
         case OPC_LDC1:
@@ -2446,6 +2447,7 @@ static void gen_cop1_ldst(DisasContext *ctx, uint32_t op, int rt,
     } else {
         generate_exception_err(ctx, EXCP_CpU, 1);
     }
+    
 }
 
 /* Arithmetic with immediate operand */
