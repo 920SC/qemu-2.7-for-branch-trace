@@ -19559,6 +19559,8 @@ static void decode_opc(CPUMIPSState *env, DisasContext *ctx)
     case OPC_LDC1:
     case OPC_SWC1:
     case OPC_SDC1:
+       
+
         gen_cop1_ldst(ctx, op, rt, rs, imm);
         break;
 
@@ -19909,7 +19911,6 @@ void gen_intermediate_code(CPUMIPSState *env, struct TranslationBlock *tb)
     ctx.singlestep_enabled = cs->singlestep_enabled;
     ctx.insn_flags = env->insn_flags;
     ctx.CP0_Config1 = env->CP0_Config1;
-    ctx.CP0_Config1 |=1;
     ctx.tb = tb;
     ctx.bstate = BS_NONE;
     ctx.btarget = 0;
@@ -19954,6 +19955,10 @@ void gen_intermediate_code(CPUMIPSState *env, struct TranslationBlock *tb)
     while (ctx.bstate == BS_NONE) {
         tcg_gen_insn_start(ctx.pc, ctx.hflags & MIPS_HFLAG_BMASK, ctx.btarget);
         num_insns++;
+        /* test code */
+       // ctx.hflags |=MIPS_HFLAG_FPU;
+       //  ctx.hflags |=MIPS_HFLAG_COP1X;
+        ctx.CP0_Config1=0xbe613093;     
 
         if (unlikely(cpu_breakpoint_test(cs, ctx.pc, BP_ANY))) {
             save_cpu_state(&ctx, 1);

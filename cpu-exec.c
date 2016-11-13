@@ -359,9 +359,11 @@ static inline TranslationBlock *tb_find_fast(CPUState *cpu,
        always be the same before a given translated block
        is executed. */
     cpu_get_tb_cpu_state(env, &pc, &cs_base, &flags);
-    
     tb_lock();
     tb = cpu->tb_jmp_cache[tb_jmp_cache_hash_func(pc)];
+    
+   // env->CP0_Config1=0xbe61309b;
+
     if (unlikely(!tb || tb->pc != pc || tb->cs_base != cs_base ||
                  tb->flags != flags)) {
         tb = tb_find_slow(cpu, pc, cs_base, flags);
@@ -696,6 +698,12 @@ int cpu_exec(CPUState *cpu)
 
             cpu->tb_flushed = false; /* reset before first TB lookup */
             for(;;) {
+                  CPUArchState *env = (CPUArchState *)cpu->env_ptr;
+                  env->CP0_Config1=0xbe61309b;//test
+                  env->hflags |=MIPS_HFLAG_FPU;//TEST
+                  env->hflags |=MIPS_HFLAG_F64;//TEST
+                  env->hflags |=MIPS_HFLAG_COP1X;//TEST
+
                 cpu_handle_interrupt(cpu, &last_tb);
                 tb = tb_find_fast(cpu, &last_tb, tb_exit);
                 cpu_loop_exec_tb(cpu, tb, &last_tb, &tb_exit, &sc);
