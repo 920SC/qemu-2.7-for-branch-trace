@@ -698,11 +698,12 @@ int cpu_exec(CPUState *cpu)
 
             cpu->tb_flushed = false; /* reset before first TB lookup */
             for(;;) {
-                  CPUArchState *env = (CPUArchState *)cpu->env_ptr;
-                  env->CP0_Config1=0xbe61309b;//test
-                  env->hflags |=MIPS_HFLAG_FPU;//TEST
-                  env->hflags |=MIPS_HFLAG_F64;//TEST
-                  env->hflags |=MIPS_HFLAG_COP1X;//TEST
+
+                  /* code write by sc */  
+                  CPUArchState *env = (CPUArchState *)cpu->env_ptr;//get the MIPSCPUstate;
+                  env->CP0_Config1 |=1;// set the fp in CP0_Config1 from 0 to 1;
+                  env->hflags |=(MIPS_HFLAG_FPU | MIPS_HFLAG_F64 | MIPS_HFLAG_COP1X);//set the hflags in order to translate the float instructions;
+                  /* end */                  
 
                 cpu_handle_interrupt(cpu, &last_tb);
                 tb = tb_find_fast(cpu, &last_tb, tb_exit);
@@ -729,12 +730,9 @@ int cpu_exec(CPUState *cpu)
         }
     } /* for(;;) */
     
-    /* code write by sc */
-//#if defined test    
+    /* code write by sc */    
     if(node_cnt>0){
-        
-     //  if(change==1){
-           FILE *fp=fopen("br_trace.txt","a+");
+         FILE *fp=fopen("br_trace.txt","a+");
         
         while(record<node_cnt){
            fwrite(&branchtrace[record],sizeof(br_trace),1,fp);
@@ -752,7 +750,7 @@ int cpu_exec(CPUState *cpu)
     }//write the tb into txt;
     
     /* end */ 
-//#endif    
+   
 
 
     cc->cpu_exec_exit(cpu);

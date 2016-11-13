@@ -8219,10 +8219,11 @@ static void gen_compute_branch1(DisasContext *ctx, uint32_t op,
 {
     target_ulong btarget;
     TCGv_i32 t0 = tcg_temp_new_i32();
+
     /* code write by sc */
-    ctx->tb->trace[0]=ctx->pc;
-    ctx->tb->trace[1]=0xf1f1;
-   // ctx->tb->trace[4]=0xf1f1;
+    ctx->tb->trace[0]=ctx->pc;//save the branch of float instructions;
+    ctx->tb->trace[1]=ctx->opcode;
+    /* end */
     
     if ((ctx->insn_flags & ISA_MIPS32R6) && (ctx->hflags & MIPS_HFLAG_BMASK)) {
         generate_exception_end(ctx, EXCP_RI);
@@ -19955,11 +19956,7 @@ void gen_intermediate_code(CPUMIPSState *env, struct TranslationBlock *tb)
     while (ctx.bstate == BS_NONE) {
         tcg_gen_insn_start(ctx.pc, ctx.hflags & MIPS_HFLAG_BMASK, ctx.btarget);
         num_insns++;
-        /* test code */
-       // ctx.hflags |=MIPS_HFLAG_FPU;
-       //  ctx.hflags |=MIPS_HFLAG_COP1X;
-        ctx.CP0_Config1=0xbe613093;     
-
+           
         if (unlikely(cpu_breakpoint_test(cs, ctx.pc, BP_ANY))) {
             save_cpu_state(&ctx, 1);
             ctx.bstate = BS_BRANCH;
@@ -19976,9 +19973,6 @@ void gen_intermediate_code(CPUMIPSState *env, struct TranslationBlock *tb)
             gen_io_start();
         }
        
-       // if(ctx.pc==0x12000bde8||ctx.pc==0x12000bde0||ctx.pc==0x12000bde4||ctx.pc==0x12000bdec)//test code;
-         //   printf("tb->pc=%d pc=%llx\n",tb->pc,ctx.pc);
-
         is_slot = ctx.hflags & MIPS_HFLAG_BMASK;
         if (!(ctx.hflags & MIPS_HFLAG_M16)) {
             ctx.opcode = cpu_ldl_code(env, ctx.pc);
@@ -20059,10 +20053,6 @@ void gen_intermediate_code(CPUMIPSState *env, struct TranslationBlock *tb)
             tb->class=7;
             break;
         case BS_BRANCH:
-
-            /* code write by sc */
-          //  tb->trace[2]=ctx.btarget;//record branch target;
-            /* end */
 
         default:
             break;
